@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+  postgres:
+    image: postgres:10.5
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - accountingnetwork
+  accounting:
+    image: accounting-service
+    env_file: .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres?currentSchema=account_service
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_DATASOURCE_PLATFORM=${SPRING_DATASOURCE_PLATFORM}
+      - SPRING_DATASOURCE_DRIVER=${SPRING_DATASOURCE_DRIVER}
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - '8081:8099'
+    networks:
+      - accountingnetwork
+    depends_on:
+      - postgres
+networks:
+  accountingnetwork:
+    driver: bridge
+    ipam:
+      driver: default

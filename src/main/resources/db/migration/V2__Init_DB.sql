@@ -1,0 +1,1 @@
+--ALTER TABLE account_service.salary ADD CONSTRAINT fk_salary_employee FOREIGN KEY(employee_id) REFERENCES employee(id)
